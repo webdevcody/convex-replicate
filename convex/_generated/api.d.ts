@@ -10,6 +10,7 @@
  */
 
 import type { ApiFromModules } from "convex/api";
+import type * as generate from "../generate";
 import type * as sketches from "../sketches";
 
 /**
@@ -22,5 +23,6 @@ import type * as sketches from "../sketches";
  * `ConvexReactClient` to create app-specific types.
  */
 export type API = ApiFromModules<{
+  generate: typeof generate;
   sketches: typeof sketches;
 }>;

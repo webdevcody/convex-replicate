@@ -2,14 +2,14 @@
 import { useForm } from "react-hook-form";
 import { useMutation, useQuery } from "../../convex/_generated/react";
 import { ReactSketchCanvas, ReactSketchCanvasRef } from "react-sketch-canvas";
-import { useRef, useState } from "react";
+import { useRef } from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
-  const [sketchId, setSketchId] = useState("");
   const saveSketchMutation = useMutation("sketches:saveSketch");
-  const sketchQuery = useQuery("sketches:getSketch", {
-    sketchId,
-  });
+  const sketchesQuery = useQuery("sketches:getSketches");
 
   const {
     register,
@@ -21,24 +21,26 @@ export default function Home() {
 
   const canvasRef = useRef<ReactSketchCanvasRef>(null);
 
+  const sortedSketches = (sketchesQuery ?? []).sort((a, b) => {
+    return b._creationTime - a._creationTime;
+  });
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="grid grid-cols-2 gap-4">
+    <main className="flex min-h-screen flex-col items-center justify-between pt-8">
+      <div className="container mx-auto flex gap-4">
         <form
-          className="flex flex-col gap-2"
+          className="flex flex-col gap-2 w-1/4"
           onSubmit={handleSubmit(async (formData) => {
             if (!canvasRef.current) return;
             const image = await canvasRef.current.exportImage("jpeg");
-            const results = await saveSketchMutation({ ...formData, image });
-            setSketchId(results.id);
+            await saveSketchMutation({ ...formData, result: false });
           })}
         >
-          <input
-            className="text-black"
-            {...register("prompt", { required: true })}
-          />
+          <Label htmlFor="prompt">Prompt</Label>
+          <Input id="prompt" {...register("prompt", { required: true })} />
           {errors.prompt && <span>This field is required</span>}
 
+          <Label className="mt-4">Canvas (Draw something below)</Label>
           <ReactSketchCanvas
             ref={canvasRef}
             style={{ width: 256, height: 256 }}
@@ -46,11 +48,32 @@ export default function Home() {
             strokeColor="black"
           />
 
-          <input className="bg-blue-400 rounded" type="submit" />
+          <Button
+            type="button"
+            variant={"ghost"}
+            onClick={() => {
+              canvasRef.current?.clearCanvas();
+            }}
+          >
+            Clear
+          </Button>
+
+          <Button type="submit">Submit</Button>
         </form>
-        {sketchQuery && (
-          <img width="256" height="256" src={sketchQuery.result} />
-        )}
+
+        <section>
+          <h2>Recent Sketches</h2>
+          <div className="grid grid-cols-4 gap-4">
+            {sortedSketches.map((sketch) => (
+              <img
+                key={sketch._id}
+                width="256"
+                height="256"
+                src={sketch.result}
+              />
+            ))}
+          </div>
+        </section>
       </div>
     </main>
   );

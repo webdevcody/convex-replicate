@@ -1,11 +1,11 @@
 "use client";
-
-import { useQuery } from "../../../convex/_generated/react";
+import { api } from "../../../convex/_generated/api";
+import { useQuery } from "convex/react";
 
 export default function Home() {
-  const saveSketchMutation = useQuery("sketches:getSketches");
+  const sketches = useQuery(api.sketches.getSketches);
 
-  const sortedSketches = (saveSketchMutation ?? []).sort((a, b) => {
+  const sortedSketches = (sketches ?? []).sort((a, b) => {
     return b._creationTime - a._creationTime;
   });
 

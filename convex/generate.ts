@@ -1,5 +1,7 @@
 "use node";
 
+import { internal } from "./_generated/api";
+import { Id } from "./_generated/dataModel";
 import { internalAction } from "./_generated/server";
 import Replicate from "replicate";
 
@@ -10,7 +12,7 @@ export const generate = internalAction(
       prompt,
       image,
       sketchId,
-    }: { sketchId: string; prompt: string; image: string }
+    }: { sketchId: Id<"sketches">; prompt: string; image: string }
   ) => {
     const replicate = new Replicate({
       auth: process.env.REPLICATE_API_TOKEN!,
@@ -30,7 +32,7 @@ export const generate = internalAction(
       }
     )) as [string, string];
 
-    await runMutation("sketches:updateSketchResult", {
+    await runMutation(internal.sketches.updateSketchResult, {
       sketchId,
       result: output[1],
     });

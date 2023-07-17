@@ -1,6 +1,7 @@
 "use client";
+import { api } from "../../convex/_generated/api";
+import { useMutation, useQuery } from "convex/react";
 import { useForm } from "react-hook-form";
-import { useMutation, useQuery } from "../../convex/_generated/react";
 import { ReactSketchCanvas, ReactSketchCanvasRef } from "react-sketch-canvas";
 import { useRef } from "react";
 import { Input } from "@/components/ui/input";
@@ -8,8 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 
 export default function Home() {
-  const saveSketchMutation = useMutation("sketches:saveSketch");
-  const sketchesQuery = useQuery("sketches:getSketches");
+  const saveSketchMutation = useMutation(api.sketches.saveSketch);
+  const sketchesQuery = useQuery(api.sketches.getSketches);
 
   const {
     register,
@@ -33,7 +34,7 @@ export default function Home() {
           onSubmit={handleSubmit(async (formData) => {
             if (!canvasRef.current) return;
             const image = await canvasRef.current.exportImage("jpeg");
-            await saveSketchMutation({ ...formData, result: false });
+            await saveSketchMutation({ ...formData, image });
           })}
         >
           <Label htmlFor="prompt">Prompt</Label>

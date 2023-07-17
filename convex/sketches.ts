@@ -1,3 +1,4 @@
+import { internal } from "./_generated/api";
 import { Id } from "./_generated/dataModel";
 import { internalMutation, mutation, query } from "./_generated/server";
 import { v } from "convex/values";
@@ -12,8 +13,8 @@ export const saveSketch = mutation({
       prompt,
     });
 
-    await scheduler.runAfter(0, "generate:generate", {
-      sketchId: sketch.id,
+    await scheduler.runAfter(0, internal.generate.generate, {
+      sketchId: sketch,
       prompt,
       image,
     });
@@ -22,18 +23,18 @@ export const saveSketch = mutation({
   },
 });
 
-export const getSketch = query(({ db }, { sketchId }: { sketchId: string }) => {
-  if (!sketchId) return null;
-  return db.get(new Id("sketches", sketchId));
-});
+export const getSketch = query(({ db }, { sketchId }: { sketchId: Id<"sketches"> }) => {
+    if (!sketchId) return null;
+    return db.get(sketchId);
+  }
+);
 
 export const updateSketchResult = internalMutation(
   async (
     { db },
-    { sketchId, result }: { sketchId: string; result: string }
+    { sketchId, result }: { sketchId: Id<"sketches">; result: string }
   ) => {
-    const id = new Id("sketches", sketchId);
-    await db.patch(id, {
+    await db.patch(sketchId, {
       result,
     });
   }

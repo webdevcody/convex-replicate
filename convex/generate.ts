@@ -5,13 +5,6 @@ import { Id } from "./_generated/dataModel";
 import { internalAction } from "./_generated/server";
 import Replicate from "replicate";
 
-if (!process.env.REPLICATE_API_TOKEN) {
-  throw new Error(
-    "Add REPLICATE_API_TOKEN to your environment variables: " +
-      "https://docs.convex.dev/production/environment-variables"
-  );
-}
-
 export const generate = internalAction(
   async (
     { runMutation },
@@ -21,8 +14,14 @@ export const generate = internalAction(
       sketchId,
     }: { sketchId: Id<"sketches">; prompt: string; image: string }
   ) => {
+    if (!process.env.REPLICATE_API_TOKEN) {
+      throw new Error(
+        "Add REPLICATE_API_TOKEN to your environment variables: " +
+          "https://docs.convex.dev/production/environment-variables"
+      );
+    }
     const replicate = new Replicate({
-      auth: process.env.REPLICATE_API_TOKEN!,
+      auth: process.env.REPLICATE_API_TOKEN,
     });
 
     const output = (await replicate.run(

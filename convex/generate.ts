@@ -5,6 +5,13 @@ import { Id } from "./_generated/dataModel";
 import { internalAction } from "./_generated/server";
 import Replicate from "replicate";
 
+if (!process.env.REPLICATE_API_TOKEN) {
+  throw new Error(
+    "Add REPLICATE_API_TOKEN to your environment variables: " +
+      "https://docs.convex.dev/production/environment-variables"
+  );
+}
+
 export const generate = internalAction(
   async (
     { runMutation },
